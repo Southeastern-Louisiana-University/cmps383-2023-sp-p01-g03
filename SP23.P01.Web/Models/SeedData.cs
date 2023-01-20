@@ -13,34 +13,30 @@ public class SeedData
                 DbContextOptions<DataContext>>());
 
         // Look for any TrainStations.
-        if (context.TrainStation.Any())
+        if (context.TrainStations.Any())
         {
             return;   // DB has been seeded
         }
 
 
-        context.TrainStation.AddRange(
+        context.TrainStations.AddRange(
             new TrainStation
             {
-                Id = 0,
                 Name = "Station 0",
                 Address = "123 Station Street"
             },
             new TrainStation
             {
-                Id = 1,
                 Name = "Station 1",
                 Address = "123 Station Street"
             },
             new TrainStation
             {
-                Id = 2,
                 Name = "Station 2",
                 Address = "123 Station Street"
             },
             new TrainStation
             {
-                Id = 3,
                 Name = "Station 3",
                 Address = "123 Station Street"
             }

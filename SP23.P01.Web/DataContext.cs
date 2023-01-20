@@ -8,5 +8,5 @@ public class DataContext : DbContext
     public DataContext(DbContextOptions options) : base(options) { }
 
     // Add Entities here
-    public DbSet<TrainStation> TrainStation { get; set; }
+    public DbSet<TrainStation> TrainStations { get; set; }
 }
