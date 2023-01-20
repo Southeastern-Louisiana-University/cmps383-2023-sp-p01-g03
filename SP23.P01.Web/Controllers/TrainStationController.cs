@@ -1,29 +1,61 @@
 using Microsoft.AspNetCore.Mvc;
-using SP23.P01.Web.Models.Entities;
+using Microsoft.EntityFrameworkCore;
+using SP23.P01.Web.Models.DTOs;
 
 namespace SP23.P01.Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/stations")]
 public class TrainStationController : ControllerBase
 {
+    // Make property to hold DataContext
+    private readonly DataContext dataContext;
 
-    private readonly ILogger<TrainStationController> _logger;
-
-    public TrainStationController(ILogger<TrainStationController> logger)
+    // Put DataContext into property
+    public TrainStationController(DataContext dataContext)
     {
-        _logger = logger;
+        this.dataContext = dataContext;
     }
 
+
+    /// <returns>All entries in the TrainStations table</returns>
     [HttpGet]
-    public IEnumerable<TrainStation> Get()
+    public async Task<List<TrainStationDto>> GetAllTrainStations()
     {
-        return Enumerable.Range(1, 5).Select(index => new TrainStation
+        var trainStationsToConvert = await dataContext.TrainStations.ToListAsync();
+
+        var convertedTrainStations = new List<TrainStationDto>();
+        foreach (var trainStation in trainStationsToConvert)
         {
-            Id = Random.Shared.Next(-20, 55),
-            Name = "Mark",
-            Address = "Some Address"
-        })
-        .ToArray();
+            convertedTrainStations.Add(new TrainStationDto()
+            {
+                Id = trainStation.Id,
+                Name = trainStation.Name,
+                Address = trainStation.Address,
+            });
+        }
+
+        return convertedTrainStations;
+    }
+
+    /// <returns>The TrainStation or 404</returns>
+    [HttpGet("{id}")]
+    public async Task<ActionResult<TrainStationDto>> GetTrainStationById(int id)
+    {
+        var trainStationToConvert = await dataContext.TrainStations.FindAsync(id);
+
+        if (trainStationToConvert == null)
+        {
+            return NotFound();
+        }
+
+        var convertedTrainStation = new TrainStationDto()
+        {
+            Id = trainStationToConvert.Id,
+            Name = trainStationToConvert.Name,
+            Address = trainStationToConvert.Address
+        };
+
+        return Ok(convertedTrainStation);
     }
 }
