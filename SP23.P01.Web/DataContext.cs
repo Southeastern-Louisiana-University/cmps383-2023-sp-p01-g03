@@ -9,4 +9,12 @@ public class DataContext : DbContext
 
     // Add Entities here
     public DbSet<TrainStation> TrainStations { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // Apply all configurations from Entity classes that extend IEntityTypeConfiguration
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataContext).Assembly);
+    }
 }
