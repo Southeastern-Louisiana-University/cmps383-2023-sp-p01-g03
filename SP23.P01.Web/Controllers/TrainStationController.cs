@@ -9,12 +9,12 @@ namespace SP23.P01.Web.Controllers;
 public class TrainStationController : ControllerBase
 {
     // Make property to hold DataContext
-    private readonly DataContext dataContext;
+    private readonly DataContext _dataContext;
 
     // Put DataContext into property
     public TrainStationController(DataContext dataContext)
     {
-        this.dataContext = dataContext;
+        this._dataContext = dataContext;
     }
 
 
@@ -22,7 +22,7 @@ public class TrainStationController : ControllerBase
     [HttpGet]
     public async Task<List<TrainStationDto>> GetAllTrainStations()
     {
-        var trainStationsToConvert = await dataContext.TrainStations.ToListAsync();
+        var trainStationsToConvert = await _dataContext.TrainStations.ToListAsync();
 
         var convertedTrainStations = new List<TrainStationDto>();
         foreach (var trainStation in trainStationsToConvert)
@@ -42,7 +42,7 @@ public class TrainStationController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<TrainStationDto>> GetTrainStationById(int id)
     {
-        var trainStationToConvert = await dataContext.TrainStations.FindAsync(id);
+        var trainStationToConvert = await _dataContext.TrainStations.FindAsync(id);
 
         if (trainStationToConvert == null)
         {
