@@ -20,42 +20,42 @@ public class TrainStationController : ControllerBase
 
     /// <returns>All entries in the TrainStations table</returns>
     [HttpGet]
-    public async Task<List<TrainStationDto>> GetAllTrainStations()
+    public async Task<ActionResult<TrainStationDto[]>> GetAllTrainStations()
     {
-        var trainStationsToConvert = await _dataContext.TrainStations.ToListAsync();
+        var trainStationEntities = await _dataContext.TrainStations.ToListAsync();
 
-        var convertedTrainStations = new List<TrainStationDto>();
-        foreach (var trainStation in trainStationsToConvert)
+        var trainStationDtos = new List<TrainStationDto>();
+        foreach (var trainStationEntity in trainStationEntities)
         {
-            convertedTrainStations.Add(new TrainStationDto()
+            trainStationDtos.Add(new TrainStationDto()
             {
-                Id = trainStation.Id,
-                Name = trainStation.Name,
-                Address = trainStation.Address,
+                Id = trainStationEntity.Id,
+                Name = trainStationEntity.Name,
+                Address = trainStationEntity.Address,
             });
         }
 
-        return convertedTrainStations;
+        return Ok(trainStationDtos);
     }
 
     /// <returns>The TrainStation or 404</returns>
     [HttpGet("{id}")]
     public async Task<ActionResult<TrainStationDto>> GetTrainStationById(int id)
     {
-        var trainStationToConvert = await _dataContext.TrainStations.FindAsync(id);
+        var trainStationEntity = await _dataContext.TrainStations.FindAsync(id);
 
-        if (trainStationToConvert == null)
+        if (trainStationEntity == null)
         {
             return NotFound();
         }
 
-        var convertedTrainStation = new TrainStationDto()
+        var trainStationDto = new TrainStationDto()
         {
-            Id = trainStationToConvert.Id,
-            Name = trainStationToConvert.Name,
-            Address = trainStationToConvert.Address
+            Id = trainStationEntity.Id,
+            Name = trainStationEntity.Name,
+            Address = trainStationEntity.Address
         };
 
-        return Ok(convertedTrainStation);
+        return Ok(trainStationDto);
     }
 }
