@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SP23.P01.Web.Models.DTOs;
+using SP23.P01.Web.Models.Entities;
+using System.Diagnostics;
 
 namespace SP23.P01.Web.Controllers;
 
@@ -22,20 +24,13 @@ public class TrainStationController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<TrainStationDto[]>> GetAllTrainStations()
     {
-        var trainStationEntities = await _dataContext.TrainStations.ToListAsync();
-
-        var trainStationDtos = new List<TrainStationDto>();
-        foreach (var trainStationEntity in trainStationEntities)
+        var result = _dataContext.TrainStations.Select(x => new TrainStationDto
         {
-            trainStationDtos.Add(new TrainStationDto()
-            {
-                Id = trainStationEntity.Id,
-                Name = trainStationEntity.Name,
-                Address = trainStationEntity.Address,
-            });
-        }
-
-        return Ok(trainStationDtos);
+            Id = x.Id,
+            Name = x.Name,
+            Address = x.Address,
+        }).ToArray();
+        return Ok(result);
     }
 
     /// <returns>The TrainStation or 404</returns>
@@ -57,5 +52,73 @@ public class TrainStationController : ControllerBase
         };
 
         return Ok(trainStationDto);
+    }
+
+    [HttpPost]
+    public IActionResult Create([FromBody] TrainStationDto trainStationCreateDto)
+    {
+        if (trainStationCreateDto == null)
+        {
+            return BadRequest();
+        }
+
+        if (trainStationCreateDto.Name == null || trainStationCreateDto.Name == "")
+        {
+            return BadRequest();
+        }
+
+        if (trainStationCreateDto.Name.Length > 120)
+        {
+            return BadRequest();
+        }
+
+        if (trainStationCreateDto.Address == null || trainStationCreateDto.Address == "")
+        {
+            return BadRequest();
+        }
+
+        var stationNameExists = _dataContext  // Checks for if the attribute actually exists
+            .TrainStations
+            .Any(x => x.Name == trainStationCreateDto.Name.Trim());
+
+        var stationAddressExists = _dataContext
+            .TrainStations
+            .Any(x => x.Address == trainStationCreateDto.Address.Trim());
+
+        if (stationAddressExists)
+        {
+            return BadRequest();
+        }
+
+        if (stationNameExists)
+        {
+            return BadRequest();
+        }
+
+        var trainStationToCreate = new TrainStation // The data actually being added
+        {
+            Name = trainStationCreateDto.Name.Trim(),
+            Address = trainStationCreateDto.Address.Trim()
+        };
+
+        var trainStationReturn = new TrainStationDto    // The data to return to the URL
+        {
+            Id = trainStationToCreate.Id,
+            Name = trainStationToCreate.Name.Trim(),
+            Address = trainStationToCreate.Address.Trim()
+
+        };
+
+        var trainStationToReturn = _dataContext.TrainStations.Add(trainStationToCreate);
+        _dataContext.SaveChanges();
+
+        var location = $"{this.Request.Scheme}://{this.Request.Host}{this.Request.PathBase}{this.Request.Path.Value}/{trainStationToReturn.Entity.Id}";
+
+        return Created(location, new TrainStationDto()
+        {
+            Id = trainStationToReturn.Entity.Id,
+            Address = trainStationToReturn.Entity.Address.Trim(),
+            Name = trainStationToReturn.Entity.Name.Trim()
+        });
     }
 }
