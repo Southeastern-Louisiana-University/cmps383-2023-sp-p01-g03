@@ -134,11 +134,13 @@ public class TrainStationController : ControllerBase
 
         var trainStation = await _dataContext.TrainStations.FindAsync(id);
 
-        if (id != trainStation.Id)
+        if (trainStation == null)
         {
             return BadRequest();
         }
-        _dataContext.Entry(trainStationDto).State = EntityState.Modified;
+        
+        trainStation.Name = trainStationDto.Name;
+        trainStation.Address = trainStationDto.Address;
 
         try { await _dataContext.SaveChangesAsync(); }
         catch (DbUpdateConcurrencyException)
