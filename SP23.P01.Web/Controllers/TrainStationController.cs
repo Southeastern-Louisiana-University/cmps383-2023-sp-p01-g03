@@ -126,4 +126,44 @@ public class TrainStationController : ControllerBase
             Name = trainStationToReturn.Entity.Name.Trim()
         });
     }
+
+    
+    [HttpPut("{id}")]
+    public async Task<ActionResult<TrainStationDto>> UpdateTrainStationById(int id, TrainStationDto trainStationDto)
+    {
+
+        if (trainStationDto.Name.Length > 120)
+        {
+            return BadRequest();
+        }
+
+        var trainStation = await _dataContext.TrainStations.FindAsync(id);
+
+        if (trainStation == null)
+        {
+            return BadRequest();
+        }
+        
+        trainStation.Name = trainStationDto.Name;
+        trainStation.Address = trainStationDto.Address;
+
+        try { await _dataContext.SaveChangesAsync(); }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (trainStation == null)
+            {
+                return NotFound();
+            }
+            else { throw; }
+        }
+        var TrainStationDto = new TrainStationDto()
+        {
+            Id = trainStation.Id,
+            Name = trainStation.Name,
+            Address = trainStation.Address,
+        };
+
+        return Ok(TrainStationDto);
+    }
+
 }
