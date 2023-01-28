@@ -61,18 +61,21 @@ public class TrainStationController : ControllerBase
         {
             return BadRequest();
         }
-
+        
         if (trainStationCreateDto.Name == null || trainStationCreateDto.Name == "")    // If the name for the new station is empty throw an error
         {
             return BadRequest();
         }
-
+        
         if (trainStationCreateDto.Name.Length > 120)    // If the Name of the new station is longer than 120 characters then throw an error
         {
             return BadRequest();
         }
-
+        
         if (trainStationCreateDto.Address == null || trainStationCreateDto.Address == "") // If the new station's address is empty then throw an error
+
+        if (trainStationCreateDto.Address == null || trainStationCreateDto.Address == "")
+
         {
             return BadRequest();
         }
@@ -90,10 +93,12 @@ public class TrainStationController : ControllerBase
             return BadRequest();
         }
 
+
         if (stationNameExists)   // If in name is in use then throw an error
         {
             return BadRequest();
         }
+
 
         var trainStationToCreate = new TrainStation    // The data actually being added
         {
@@ -121,6 +126,4 @@ public class TrainStationController : ControllerBase
             Name = trainStationToReturn.Entity.Name.Trim()
         });
     }
-
-
 }
