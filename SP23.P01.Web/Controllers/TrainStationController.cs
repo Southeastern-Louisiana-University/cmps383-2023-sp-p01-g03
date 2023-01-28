@@ -166,4 +166,28 @@ public class TrainStationController : ControllerBase
         return Ok(TrainStationDto);
     }
 
+
+    /// <returns>404 or 200. 500 should not return, but it is still possible</returns>
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteTrainStationById(int id)
+    {
+        var trainStationEntity = await _dataContext.TrainStations.FindAsync(id);
+
+        if (trainStationEntity == null)
+        {
+            return NotFound();
+        }
+
+        _dataContext.Entry(trainStationEntity).State = EntityState.Deleted;
+        var entitySavedCount = await _dataContext.SaveChangesAsync();
+
+        if (entitySavedCount > 0)
+        {
+            return Ok();
+        }
+
+        // This should never happen, but just in case
+        return StatusCode(500);
+    }
+
 }
